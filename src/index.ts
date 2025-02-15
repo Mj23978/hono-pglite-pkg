@@ -1,6 +1,6 @@
 import { serve } from '@hono/node-server'
 import { migration } from '../database'
-import { app } from './server'
+import { app } from './app'
 
 const PORT = 6968
 

@@ -12,9 +12,16 @@
     "isolatedModules": true,
     "incremental": true,
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": [
+        "./src/*"
+      ]
     }
   },
-  "include": ["**/*.ts", "./*.mjs"],
-  "exclude": ["node_modules"]
+  "include": [
+    "**/*.ts",
+    "./*.mjs"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

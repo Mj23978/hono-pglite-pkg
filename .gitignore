@@ -8,4 +8,5 @@ bin/*
 !bin/.gitkeep
 ./bundle.js
 .cache
+.rollup.cache/*
 src-tauri/*

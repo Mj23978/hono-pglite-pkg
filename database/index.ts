@@ -19,7 +19,7 @@ if (process.env.NODE_ENV !== 'production') {
 export async function migration() {
   console.log(`🚀 Running migrations...`)
   await migrate(database as any, {
-    migrationsFolder: path.join(__dirname, './migrations'),
+    migrationsFolder: path.join('./migrations'),
   })
   console.log(`🚀 Migrations complete!`)
 }

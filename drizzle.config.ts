@@ -5,7 +5,7 @@ export default {
   out: `${__dirname}/migrations/`,
   schema: './database/schema/drizzle.ts',
   breakpoints: true,
-  dialect: 'sqlite',
+  dialect: 'postgresql',
   dbCredentials: {
     url: process.env.DATABASE_URL!,
   },

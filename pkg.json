@@ -1,4 +1,10 @@
 {
-  "targets": ["node20-windows-x64"],
-  "assets": "migrations/**/*"
+  "targets": [
+    "node22-windows-x64"
+  ],
+  "assets": [
+    "migrations/**/*",
+    "bundle/postgres.data",
+    "bundle/postgres.wasm"
+  ]
 }

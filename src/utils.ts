@@ -1,3 +1,6 @@
+import fs from 'fs';
+import path from 'path'; 
+
 export function aggregateOneToMany<
   TRow extends Record<string, any>,
   TOne extends keyof TRow,
@@ -20,4 +23,30 @@ export function aggregateOneToMany<
     }
   }
   return Object.values(map).map((r) => ({ ...r.one, [many]: r.many }))
+}
+
+export function logFilesAndDirectories(dir: string) {
+  fs.readdir(dir, (err, files) => {
+    if (err) {
+      console.error(`Unable to scan directory: ${err}`);
+      return;
+    }
+
+    files.forEach(file => {
+      const filePath = path.join(dir, file);
+      fs.stat(filePath, (err, stats) => {
+        if (err) {
+          console.error(`Unable to get file stats: ${err}`);
+          return;
+        }
+
+        if (stats.isDirectory()) {
+          console.log(`Directory: ${filePath}`);
+          logFilesAndDirectories(filePath); // Recursively log files in subdirectories
+        } else {
+          console.log(`File: ${filePath}`);
+        }
+      });
+    });
+  });
 }

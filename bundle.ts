@@ -1,4 +1,6 @@
 import { execSync } from 'child_process';
+import fs from 'fs-extra';
+import path from 'path';
 
 function runCommand(command: string): string {
   console.log(`Running command: ${command}`);
@@ -31,17 +33,44 @@ function getRustcHost(): string {
   }
 }
 
-function main(): void {
+async function copyFiles() {
+  try {
+    const sourceData = path.join('node_modules', '@electric-sql', 'pglite', 'dist', 'postgres.data');
+    const sourceWasm = path.join('node_modules', '@electric-sql', 'pglite', 'dist', 'postgres.wasm');
+    const migrationsDir = path.join('migrations');
+    const pkgJsonDir = path.join('pkg.json');
+    const destDir = path.join('bundle');
+
+    // Ensure the destination directory exists
+    await fs.ensureDir(destDir);
+
+    // Copy the files
+    await fs.copy(sourceData, path.join(destDir, 'postgres.data'));
+    await fs.copy(sourceWasm, path.join(destDir, 'postgres.wasm'));
+    await fs.copy(migrationsDir, path.join(destDir, 'migrations'));
+    await fs.copy(pkgJsonDir, path.join(destDir, 'pkg.json'));
+
+    console.log('Files copied successfully');
+  } catch (err) {
+    console.error('Error copying files:', err);
+  }
+}
+
+async function main() {
   try {
     // Step 1: Run esbuild
-    runCommand('node esbuild.config.mjs');
+    runCommand('pnpm tsup');
 
-    // Step 2: Get rustc host
+    // Step 2: Copy postgres.data and postgres.wasm files
+    await copyFiles();
+    console.log(`Postgres wasm copied !!`);
+
+    // Step 3: Get rustc host
     const rustcHost = getRustcHost();
     console.log(`Rustc host: ${rustcHost}`);
 
-    // Step 3: Run pkg with the extracted host
-    const pkgCommand = `pkg bundle/server.bundle.js --config pkg.json -o ./src-tauri/bin/server-${rustcHost} --debug`;
+    // Step 4: Run pkg with the extracted host
+    const pkgCommand = `pkg bundle/index.cjs --config ./pkg.json -o ./src-tauri/bin/server-${rustcHost}  --debug  --public --no-bytecode`;
     runCommand(pkgCommand);
   } catch (error) {
     console.error('Build failed:', error);
