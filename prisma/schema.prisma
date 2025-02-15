@@ -1,0 +1,205 @@
+generator client {
+  provider = "prisma-client-js"
+  // previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator zod {
+  provider              = "zod-prisma"
+  output                = "../database/schema"
+  relationModel         = false
+  modelCase             = "camelCase"
+  modelSuffix           = "Schema"
+  useDecimalJs          = true
+  prismaJsonNullability = true
+}
+
+generator drizzle {
+  provider = "prisma-generator-drizzle"
+  output   = "../database/schema/drizzle.ts"
+}
+
+model User {
+  /// drizzle.default @paralleldrive/cuid2::createId
+  id                    String    @id @default(cuid())
+  username              String?
+  name                  String
+  email                 String
+  emailVerified         Boolean   @default(false)
+  role                  String    @default("user")
+  twoFactorEnabled      Boolean   @default(false)
+  locale                String    @default("en-US")
+  image                 String?
+  banned                Boolean   @default(false)
+  banReason             String?
+  banExpires            DateTime?
+  lastNotificationCheck DateTime?
+
+  createdAt    DateTime       @default(now())
+  /// drizzle.default ../utils::updatedAt
+  updatedAt    DateTime       @updatedAt
+  sessions     Session[]
+  accounts     Account[]
+  twofactors   TwoFactor[]
+  members      Member[]
+  invitations  Invitation[]
+  passkeys     Passkey[]
+  Notification Notification[]
+
+  @@unique([email])
+  @@unique([username])
+  @@map("user")
+}
+
+model Session {
+  /// drizzle.default @paralleldrive/cuid2::createId
+  id                   String   @id @default(cuid())
+  expiresAt            DateTime
+  token                String
+  createdAt            DateTime @default(now())
+  /// drizzle.default ../utils::updatedAt
+  updatedAt            DateTime @updatedAt
+  ipAddress            String?
+  userAgent            String?
+  userId               String
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  impersonatedBy       String?
+  activeOrganizationId String?
+
+  @@unique([token])
+  @@map("session")
+}
+
+model Account {
+  /// drizzle.default @paralleldrive/cuid2::createId
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  /// drizzle.default ../utils::updatedAt
+  updatedAt             DateTime  @updatedAt
+
+  @@map("account")
+}
+
+model Verification {
+  /// drizzle.default @paralleldrive/cuid2::createId
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  /// drizzle.default ../utils::updatedAt
+  updatedAt  DateTime @updatedAt
+
+  @@map("verification")
+}
+
+model Passkey {
+  /// drizzle.default @paralleldrive/cuid2::createId
+  id           String   @id @default(cuid())
+  name         String?
+  publicKey    String
+  userId       String
+  credentialID String
+  counter      Int
+  deviceType   String
+  backedUp     Boolean
+  transports   String?
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("passkey")
+}
+
+model TwoFactor {
+  /// drizzle.default @paralleldrive/cuid2::createId
+  id          String @id @default(cuid())
+  secret      String
+  backupCodes String
+  userId      String
+  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("twoFactor")
+}
+
+model Organization {
+  /// drizzle.default @paralleldrive/cuid2::createId
+  id          String       @id @default(cuid())
+  name        String
+  logo        String?
+  currency    String       @default("USD")
+  slug        String?
+  locale      String       @default("en-US")
+  createdAt   DateTime     @default(now())
+  /// drizzle.default ../utils::updatedAt
+  updatedAt   DateTime     @updatedAt
+  metadata    String?
+  members     Member[]
+  invitations Invitation[]
+
+  @@unique([slug])
+  @@map("organization")
+}
+
+model Member {
+  /// drizzle.default @paralleldrive/cuid2::createId
+  id        String   @id @default(cuid())
+  role      String
+  createdAt DateTime @default(now())
+  /// drizzle.default ../utils::updatedAt
+  updatedAt DateTime @updatedAt
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("member")
+}
+
+model Invitation {
+  /// drizzle.default @paralleldrive/cuid2::createId
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  email          String
+  role           String?
+  status         String
+  expiresAt      DateTime
+  inviterId      String
+  user           User         @relation(fields: [inviterId], references: [id], onDelete: Cascade)
+
+  @@map("invitation")
+}
+
+model Notification {
+  /// drizzle.default @paralleldrive/cuid2::createId
+  id        String   @id @default(cuid())
+  type      String
+  message   String
+  data      String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  /// drizzle.default ../utils::updatedAt
+  updatedAt DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@map("notification")
+}
