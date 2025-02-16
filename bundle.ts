@@ -70,7 +70,7 @@ async function main() {
     console.log(`Rustc host: ${rustcHost}`);
 
     // Step 4: Run pkg with the extracted host
-    const pkgCommand = `pkg bundle/index.cjs --config ./pkg.json -o ./src-tauri/bin/server-${rustcHost}  --debug  --public --no-bytecode`;
+    const pkgCommand = `pkg bundle/index.cjs --config ./pkg.json -o ./bin/server-${rustcHost}  --debug  --public --no-bytecode`;
     runCommand(pkgCommand);
   } catch (error) {
     console.error('Build failed:', error);

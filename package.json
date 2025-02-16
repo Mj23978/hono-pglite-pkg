@@ -8,7 +8,7 @@
     "dev": "tsx ./src/index.ts --watch",
     "start": "tsx ./src/index.ts",
     "build": "tsup",
-    "package": "pkg bundle/index.cjs --config ./pkg.json -o ./src-tauri/bin/server-x86_64-pc-windows.exe --debug --public --no-bytecode",
+    "package": "pkg bundle/index.cjs --config ./pkg.json -o ./bin/server-x86_64-pc-windows.exe --debug --public --no-bytecode",
     "bundle": "tsx ./bundle.ts",
     "db:generate": "prisma generate",
     "db:push": "drizzle-kit generate",
