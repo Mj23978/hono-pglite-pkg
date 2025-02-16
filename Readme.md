@@ -12,14 +12,6 @@ This repository contains a server application built using the [Hono](https://ho
 4. **pkg**: A tool for packaging Node.js projects into standalone executables.
 5. **Prisma (Optional)**: using Prisma for database migrations and schema management.
 
-
-### Data Flow
-
-1. **API Requests**: Clients send HTTP requests to the Hono server.
-2. **Drizzle ORM**: The server uses Drizzle ORM to interact with the PGLite database.
-3. **PGLite (WASM PostgreSQL)**: PGLite handles the database operations, executing SQL queries and managing data.
-4. **Response**: The server sends HTTP responses back to the client.
-
 ## Architecture Design
 
 ### Design Overview
@@ -59,6 +51,98 @@ The architecture leverages a combination of modern web frameworks, ORMs, and lig
 #### Tauri Sidecar
 
 [Tauri](https://tauri.app/) is a framework for building tiny, fast binaries for all major desktop platforms. You can integrate the standalone executable created with `pkg` into a Tauri application using the Tauri sidecar feature. Tauri sidecar allows you to bundle and ship additional executables with your Tauri application. This is useful for including background services, helper processes, or other binaries that your application depends on. (Note: your bundled server increase final build size of Tauri app)
+
+## Setup and Installation
+
+### Prerequisites
+
+- Node.js (v20.18.0 or higher)
+- pnpm (or npm)
+
+### Steps
+
+1. **Clone the Repository**
+    
+    ```bash
+    git clone https://github.com/Mj23978/hono-pglite-pkg.git
+    cd hono-pglite-pkg
+    ```
+    
+2. **Install Dependencies**
+    
+    ```bash
+    pnpm install
+    ```
+    
+3. **Generating Drizzle Database Schema from prisma**
+   Run the following command to generate the Drizzle database schema from your Prisma schema file (`prisma/schema.prisma`).
+
+    ```bash
+    pnpm db:generate
+    ```
+4. **Create Migrations**
+    Run the following command to create migrations based on your Drizzle schema and Drizzle Configuration (`drizzle.config.ts`).
+    
+    ```bash
+    pnpm db:push
+    ```
+5. **Bundle the Server**
+    The server is built using `tsup`, which generates CommonJS code from TypeScript. bundles ships postgres.data and postgres.wasm from pglite node_modules into executable and also includes postgres migrations.
+
+    ```bash
+    pnpm bundle
+    ```
+6. **Build the Server**
+    
+    The server is built using `tsup`, which generates CommonJS code from TypeScript.
+    
+    ```bash
+    pnpm build
+    ```
+    
+7. **Bundle the Server into a Single Binary**
+    
+    Use `pkg` to package the server into a standalone executable.
+    
+    ```bash
+    pnpm run package
+    ```
+    
+    This will generate executables for different platforms (e.g., Linux, Windows, macOS) in the `dist` directory.
+    
+
+## Running the Server
+
+### Using the Bundled Binary
+
+1. **Navigate to the `bin` Directory**
+    
+    ```bash
+    cd bin
+    ```
+    
+2. **Run the Executable**
+    
+    - **Linux/MacOS**
+        
+        ```bash
+        ./your-server-name-linux
+        ```
+        
+    - **Windows**
+        
+        ```bash
+        your-server-name-win.exe
+        ```
+        
+
+### Using Node.js
+
+1. **Start the Server**
+    
+    ```bash
+    pnpm start
+    ```
 
 ## License
 
