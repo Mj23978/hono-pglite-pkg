@@ -4,8 +4,6 @@ This repository contains a server application built using the [Hono](https://ho
 
 ## Architecture Overview
 
-### Components
-
 1. **Hono Framework**: A lightweight and fast web framework for Node.js, designed for creating APIs and web applications.
 2. **Drizzle ORM**: A TypeScript-first ORM for building type-safe SQL queries.
 3. **PGLite**: A WebAssembly build of PostgreSQL, allowing you to run a lightweight database in a Node.js environment.
